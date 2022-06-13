@@ -26,7 +26,9 @@ services:
     volumes:
     - ranger-pg-data:/var/lib/postgresql/data
   ranger-admin:
-    image: trino-ranger-demo:v3.0
+    build:
+      context: .
+      dockerfile: ranger-admin/Dockerfile
     container_name: ranger-admin
     hostname: ranger-admin
     entrypoint: /root/docker-entrypoint.sh
@@ -58,9 +60,26 @@ services:
       - ./trino/docker-entrypoint.sh:/root/docker-entrypoint.sh
     ports:
       - 8080:8080
+  superset:
+    build: ./superset
+    container_name: superset
+    hostname: superset
+    ports:
+      - "8088:8088"
+    volumes:
+      - superset-data:/app/superset_home
+    networks:
+      - trino-ranger-demo
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 1G
+
 networks:
   trino-ranger-demo:
     driver: bridge
 volumes:
   ranger-es-data:
   ranger-pg-data:
+  superset-data:
